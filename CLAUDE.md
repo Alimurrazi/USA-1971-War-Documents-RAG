@@ -22,8 +22,8 @@ Steps 3 and 4 are interchangeable consumers of the same `chroma_db/` collection.
 ```powershell
 # One-time setup
 pip install requests beautifulsoup4 chromadb ollama gradio
-ollama pull nomic-embed-text
-ollama pull llama3            # or mistral, phi3, gemma2, etc.
+ollama pull mxbai-embed-large    # current EMBED_MODEL
+ollama pull qwen2.5:14b          # current default LLM_MODEL in ask.py
 
 # Pipeline
 python scraper.py             # scrape (resumable — skips cached JSONs)
@@ -41,17 +41,21 @@ There are no tests, no linter config, and no build step.
 
 **`index.py` rebuilds from scratch every run.** It calls `client.delete_collection(COLLECTION)` before re-creating it, so re-running re-embeds everything. There is no incremental indexing.
 
-**Known bug — file layout mismatch between `scraper.py` and `index.py`:**
-- `scraper.py` writes per-document JSONs to `scraped_docs/<volume>/d<NNN>.json` (one subdirectory per FRUS volume).
-- `index.py`'s `load_documents()` uses `SCRAPED_DIR.glob("d*.json")` — non-recursive, top-level only — so it will load **zero** documents from the actual scraper output. Either change the glob to `**/d*.json` (rglob) or have `index.py` read the combined `scraped_docs/all_documents.json` instead. The docstring comments in both files (`1_scrape.py`, `2_index.py`) reference renamed earlier versions.
+**Embedding function class is redefined in each consumer.** `OllamaEmbedder` exists separately in `index.py`, `ask.py` (nested inside `RAGChat.__init__`), and `webapp.py`. They must match the indexer's embedding model exactly — Chroma stores vectors, not the function used to make them. Changing `EMBED_MODEL` requires editing all three files **and** running `python index.py` to re-embed (vectors from different models live in different spaces).
 
-**Embedding function class is redefined in each consumer.** `OllamaEmbedder` exists separately in `index.py`, `ask.py` (nested inside `RAGChat.__init__`), and `webapp.py`. They must match the indexer's embedding model exactly (`nomic-embed-text`) — Chroma stores vectors, not the function used to make them.
+**Pagination.** `scraper.py:collect_document_urls` walks `?start=1, 31, 61, …` until a page returns no new `/dN` links — FRUS chapter indexes are paginated 30 documents per page.
 
-**Adding new FRUS volumes:** append URLs to `COMP_URLS` in `scraper.py:23`. The scraper deduplicates by per-volume sub-folder + JSON filename, so re-runs are safe.
+**Adding new FRUS volumes/chapters:** append URLs to `COMP_URLS` in `scraper.py:23` (chapter URLs like `.../frus1969-76ve07/ch2`). The scraper deduplicates by per-volume sub-folder + JSON filename, so re-runs are safe and resumable.
 
-**Chunking** (`index.py:34`): sentence-aware splitter, ~800 chars with ~150-char overlap; chunks under 50 chars are dropped.
+**Footnotes are captured but not indexed.** `scraper.py` writes a `footnotes` field into each JSON, but it currently captures the page footer (site chrome) due to an over-broad `class~="foot|note"` regex — every doc gets the same boilerplate. `index.py` deliberately ignores this field; only `body` is chunked. If real document footnotes ever matter, the fix is in `parse_document` (tighten the selector) — not in `index.py`.
+
+**Chunking** (`index.py:chunk_text`): sentence-aware splitter, ~800 chars with ~150-char overlap; chunks under 50 chars are dropped. The "overlap" is implemented in word-units (`overlap // 6` words ≈ overlap chars).
 
 **Conversation history** in `ask.py` is capped at 20 messages and stores only Q/A turns — the retrieved context is *not* persisted across turns, so each turn re-retrieves from scratch using only the current question.
+
+## Repository layout
+
+`scraped_docs/` **is committed** to the repo intentionally — re-scraping is slow and hits a public government archive, and pinning the corpus keeps everyone testing against the same data. `chroma_db/` is gitignored (regeneratable, large, embedding-model-specific).
 
 ## Scraper etiquette
 
