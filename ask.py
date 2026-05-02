@@ -25,9 +25,9 @@ import ollama
 # ── Config ────────────────────────────────────────────────────────────────────
 CHROMA_DIR   = Path("chroma_db")
 COLLECTION   = "frus_documents"
-EMBED_MODEL  = "nomic-embed-text"
-LLM_MODEL    = "llama3"   # change to any model you have in Ollama
-TOP_K        = 6          # number of chunks to retrieve
+EMBED_MODEL  = "mxbai-embed-large"
+LLM_MODEL    = "qwen2.5:14b"   # change to any model you have in Ollama
+TOP_K        = 12          # number of chunks to retrieve
 # ──────────────────────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPT = """You are a diplomatic historian specializing in US foreign policy.

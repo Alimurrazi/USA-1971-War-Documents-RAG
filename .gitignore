@@ -1,0 +1,23 @@
+# Generated artifacts — regenerate with `python scraper.py` / `python index.py`
+chroma_db/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

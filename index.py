@@ -25,7 +25,7 @@ import ollama
 SCRAPED_DIR   = Path("scraped_docs")
 CHROMA_DIR    = Path("chroma_db")
 COLLECTION    = "frus_documents"
-EMBED_MODEL   = "nomic-embed-text"   # pull with: ollama pull nomic-embed-text
+EMBED_MODEL   = "mxbai-embed-large"   # pull with: ollama pull mxbai-embed-large
 CHUNK_SIZE    = 800    # characters per chunk
 CHUNK_OVERLAP = 150
 # ──────────────────────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ class OllamaEmbedder(embedding_functions.EmbeddingFunction):
 
 def load_documents() -> list[dict]:
     docs = []
-    for json_file in sorted(SCRAPED_DIR.glob("d*.json")):
+    for json_file in sorted(SCRAPED_DIR.rglob("d*.json")):
         with open(json_file, encoding="utf-8") as f:
             docs.append(json.load(f))
     print(f"Loaded {len(docs)} documents from '{SCRAPED_DIR}'")
@@ -97,9 +97,10 @@ def build_index():
         metadata = doc.get("metadata", {})
         date     = metadata.get("Date", metadata.get("date", ""))
 
-        # Combine body + footnotes for richer context
-        full_text = doc.get("body", "") + "\n" + doc.get("footnotes", "")
-        chunks = chunk_text(full_text)
+        # Footnotes are intentionally excluded — the scraper currently captures
+        # the page footer (site chrome) under that field, not real footnotes,
+        # so including it would pollute every document's last chunk.
+        chunks = chunk_text(doc.get("body", ""))
 
         if not chunks:
             print(f"  Skipping {doc_id} – no text content")
