@@ -6,21 +6,24 @@ Uses:
   - Ollama    → generate answers (llama3, mistral, etc.)
 
 Install:
-    pip install chromadb ollama
-    ollama pull llama3          # or: mistral, phi3, gemma2, etc.
-    ollama pull nomic-embed-text
+    pip install chromadb ollama rich
+    ollama pull qwen2.5:14b     # or: mistral, phi3, gemma2, etc.
+    ollama pull mxbai-embed-large
 
 Usage:
-    python 3_ask.py
-    python 3_ask.py --model mistral --top-k 8
+    python ask.py
+    python ask.py --model mistral --top-k 8
 """
 
 import argparse
-import textwrap
 from pathlib import Path
 import chromadb
 from chromadb.utils import embedding_functions
 import ollama
+from rich.console import Console
+from rich.markdown import Markdown
+
+console = Console()
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CHROMA_DIR   = Path("chroma_db")
@@ -158,13 +161,8 @@ def main():
         print("\n⏳ Thinking...\n")
         answer, metas = rag.ask(question)
 
-        print("─" * 70)
-        # Word-wrap the answer nicely
-        for line in answer.split("\n"):
-            if line.strip():
-                print(textwrap.fill(line, width=70))
-            else:
-                print()
+        console.rule()
+        console.print(Markdown(answer))
 
         print_sources(metas)
 
