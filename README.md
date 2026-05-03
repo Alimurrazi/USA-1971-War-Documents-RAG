@@ -4,7 +4,7 @@ A fully-local **Retrieval-Augmented Generation (RAG)** system that lets you ask 
 
 Everything runs on your laptop — no API keys, no cloud calls, no data leaves the machine. Embeddings and language models are served by [Ollama](https://ollama.com/), and vectors are stored in a local [ChromaDB](https://www.trychroma.com/) instance.
 
-The included corpus focuses on the **South Asia volumes** (the lead-up to and aftermath of the 1971 Indo-Pakistan War / Bangladesh Liberation War), but the scraper is generic — point it at any FRUS chapter URL and it will pull every document on that index.
+The included corpus focuses on the **1971 Bangladesh Liberation War**. It contains pre-war documents that show how the crisis built up gradually (rising East–West Pakistan tensions, the 1970 election, the Awami League's autonomy push), wartime documents covering the military crackdown and the Indo-Pakistan war itself, and post-war documents on the recognition of Bangladesh and the diplomatic aftermath. The scraper is generic, though — point it at any FRUS chapter URL and it will pull every document on that index. See [`DATASET.md`](DATASET.md) for the full corpus description.
 
 ---
 
@@ -376,7 +376,15 @@ The codebase is intentionally **flat and procedural**. Each script is self-conta
 
 ## A note on the source corpus
 
-FRUS volumes are published by the [Office of the Historian, US Department of State](https://history.state.gov/about/hac) and are in the **public domain**. The documents are declassified diplomatic records — memos, telegrams, meeting minutes — covering US foreign policy from the late 18th century forward. The 1969–1976 volumes used here include the South Asia crisis (`frus1969-76ve07`, `frus1969-76v11`) and contain meeting notes from Nixon, Kissinger, Yahya Khan, and other principals during the lead-up to and aftermath of the 1971 war.
+FRUS volumes are published by the [Office of the Historian, US Department of State](https://history.state.gov/about/hac) and are in the **public domain**. The documents are declassified diplomatic records — memos, telegrams, meeting minutes — covering US foreign policy from the late 18th century forward.
+
+The 1969–1972 volumes used here (`frus1969-76ve07` and `frus1969-76v11`) trace the **1971 Bangladesh Liberation War** in three phases:
+
+- **Lead-up (1969 – early 1971):** how the crisis built gradually — tensions between West and East Pakistan, the December 1970 election, growing autonomy demands from the Awami League, and US assessments of Yahya Khan's regime.
+- **Crisis and war (Mar – Dec 1971):** the military crackdown in East Pakistan, the refugee exodus into India, the Indo-Pakistan war, the Nixon administration's "tilt" toward Pakistan, and the Pakistani surrender in Dhaka.
+- **Aftermath (Jan – Dec 1972):** US recognition of Bangladesh, the reshaping of US relations with India and Pakistan, and the new bilateral relationship with Bangladesh.
+
+The corpus contains meeting notes and cables involving Nixon, Kissinger, Yahya Khan, Indira Gandhi, and other principals throughout these phases. See [`DATASET.md`](DATASET.md) for the full description, schema, and known caveats.
 
 Please be respectful of `history.state.gov`'s servers when scraping — keep `DELAY_SEC` at 1 second or higher, and update the contact email in `scraper.py`'s `User-Agent` to your own before running large scrapes.
 
