@@ -8,20 +8,17 @@ Local RAG pipeline over **FRUS** (Foreign Relations of the United States, 1969�
 
 ## Pipeline (run order)
 
-The four scripts are a sequential pipeline that hands off via files on disk:
+The three scripts are a sequential pipeline that hands off via files on disk:
 
 1. `scraper.py` → writes `scraped_docs/<volume>/d<NNN>.json` + `scraped_docs/all_documents.json` + `scraped_docs/index.json`
 2. `index.py`   → reads scraped JSONs, chunks, embeds, writes `chroma_db/`
 3. `ask.py`     → CLI REPL that queries `chroma_db/` and calls Ollama
-4. `webapp.py`  → Gradio UI alternative to `ask.py` (port 7860)
-
-Steps 3 and 4 are interchangeable consumers of the same `chroma_db/` collection.
 
 ## Common commands
 
 ```powershell
 # One-time setup
-pip install requests beautifulsoup4 chromadb ollama gradio
+pip install requests beautifulsoup4 chromadb ollama
 ollama pull mxbai-embed-large    # current EMBED_MODEL
 ollama pull qwen2.5:14b          # current default LLM_MODEL in ask.py
 
@@ -30,18 +27,17 @@ python scraper.py             # scrape (resumable — skips cached JSONs)
 python index.py               # rebuild vector index (DROPS the existing collection)
 python ask.py                 # CLI Q&A
 python ask.py --model mistral --top-k 8
-python webapp.py              # Gradio UI at http://localhost:7860
 ```
 
 There are no tests, no linter config, and no build step.
 
 ## Architecture notes
 
-**Config is duplicated, not shared.** `CHROMA_DIR`, `COLLECTION`, `EMBED_MODEL` are redefined at the top of `index.py`, `ask.py`, and `webapp.py`. Changing any of these requires editing all three files in lockstep — they will silently fail (collection-not-found) if they drift.
+**Config is duplicated, not shared.** `CHROMA_DIR`, `COLLECTION`, `EMBED_MODEL` are redefined at the top of `index.py` and `ask.py`. Changing any of these requires editing both files in lockstep — they will silently fail (collection-not-found) if they drift.
 
 **`index.py` rebuilds from scratch every run.** It calls `client.delete_collection(COLLECTION)` before re-creating it, so re-running re-embeds everything. There is no incremental indexing.
 
-**Embedding function class is redefined in each consumer.** `OllamaEmbedder` exists separately in `index.py`, `ask.py` (nested inside `RAGChat.__init__`), and `webapp.py`. They must match the indexer's embedding model exactly — Chroma stores vectors, not the function used to make them. Changing `EMBED_MODEL` requires editing all three files **and** running `python index.py` to re-embed (vectors from different models live in different spaces).
+**Embedding function class is redefined in each consumer.** `OllamaEmbedder` exists separately in `index.py` and `ask.py` (nested inside `RAGChat.__init__`). It must match the indexer's embedding model exactly — Chroma stores vectors, not the function used to make them. Changing `EMBED_MODEL` requires editing both files **and** running `python index.py` to re-embed (vectors from different models live in different spaces).
 
 **Pagination.** `scraper.py:collect_document_urls` walks `?start=1, 31, 61, …` until a page returns no new `/dN` links — FRUS chapter indexes are paginated 30 documents per page.
 
