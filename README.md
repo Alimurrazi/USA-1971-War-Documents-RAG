@@ -6,6 +6,8 @@ Everything runs on your laptop — no API keys, no cloud calls, no data leaves t
 
 The included corpus focuses on the **1971 Bangladesh Liberation War**. It contains pre-war documents that show how the crisis built up gradually (rising East–West Pakistan tensions, the 1970 election, the Awami League's autonomy push), wartime documents covering the military crackdown and the Indo-Pakistan war itself, and post-war documents on the recognition of Bangladesh and the diplomatic aftermath. The scraper is generic, though — point it at any FRUS chapter URL and it will pull every document on that index. See [`DATASET.md`](DATASET.md) for the full corpus description.
 
+> **Dataset on Hugging Face:** The corpus is also published as a standalone dataset at [**huggingface.co/datasets/AlimurRazi/FRUS-1971-bangladesh**](https://huggingface.co/datasets/AlimurRazi/FRUS-1971-bangladesh) for researchers who just want the data without the pipeline. Load it with `datasets.load_dataset("AlimurRazi/FRUS-1971-bangladesh")`. The same data is available locally in this repo at [`scraped_docs/all_documents.json`](scraped_docs/all_documents.json) (JSON array) and [`frus_1971.jsonl`](frus_1971.jsonl) (JSON Lines, one record per line — easier to stream).
+
 ---
 
 ## What you can ask
