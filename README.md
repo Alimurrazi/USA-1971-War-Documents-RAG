@@ -2,6 +2,7 @@
 
 <img width="1890" height="973" alt="image" src="https://github.com/user-attachments/assets/cd4d4ef6-e3d0-44c2-93b2-2b131bbedd88" />
 
+---
 
 A fully-local **Retrieval-Augmented Generation (RAG)** system that lets you ask natural-language questions about declassified US State Department documents from the [Foreign Relations of the United States (FRUS)](https://history.state.gov/historicaldocuments) series, 1969–1976.
 
