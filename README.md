@@ -156,7 +156,7 @@ words = current.split()
 current = " ".join(words[-(overlap // 6):]) + " " + sent
 ```
 
-The overlap is implemented in **words**, not characters — it carries forward `overlap // 6` words from the end of the previous chunk. The `// 6` is a rough character-to-word conversion (English averages ~6 characters per word including spaces). So with `overlap = 150`, that's `150 // 6 = 25` words, which is *approximately* 150 characters — hence the "~". Not exact, but close enough for retrieval purposes.
+The overlap is implemented in **words**, not characters — it carries forward `overlap // 6` words from the end of the previous chunk. The `// 6` is a rough character-to-word conversion (English averages `~6 characters per word including spaces). So with `overlap = 150`, that's `150 // 6 = 25` words, which is *approximately* 150 characters — hence the "~"`. Not exact, but close enough for retrieval purposes.
 
 #### What "cosine similarity over an HNSW index" actually means
 
